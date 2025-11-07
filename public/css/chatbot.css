@@ -1,14 +1,17 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-
+body {
+    background: linear-gradient(180deg, #7a1c2e 0%, #9b1c25 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    line-height: 1.6;
+    position: relative;
+    overflow-x: hidden;
+}
 
 /* === Main Content Wrapper — Semua konten (termasuk header) ikut bergeser saat chatbot terbuka === */
 .main-content {

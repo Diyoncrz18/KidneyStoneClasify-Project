@@ -1,6 +1,7 @@
 // src/app/upload/page.tsx
 "use client";
 
+import ChatBot from "@/components/chatBot";
 import { useState, useRef } from "react";
 import ReactMarkdown from 'react-markdown';
 
@@ -170,7 +171,7 @@ export default function UploadPage() {
 
         {/* ==================== RIGHT COLUMN ==================== */}
         {result && (
-          <div className="flex flex-col rounded-xl bg-[#1E293B]/60 p-6 shadow-md">
+          <>          <div className="flex flex-col rounded-xl bg-[#1E293B]/60 p-6 shadow-md">
             <h3 className="mb-4 text-lg font-bold text-white">
               Hasil Analisis AI
             </h3>
@@ -225,6 +226,10 @@ export default function UploadPage() {
               </div>
             </div>
           </div>
+
+          <ChatBot data={result.description} />
+          </>
+
         )}
       </div>
     </main>
