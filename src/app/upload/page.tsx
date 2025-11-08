@@ -3,7 +3,7 @@
 
 import ChatBot from "@/components/chatBot";
 import { useState, useRef } from "react";
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown from "react-markdown";
 
 interface DetectionResult {
   label: string;
@@ -136,12 +136,16 @@ export default function UploadPage() {
             // Preview image
             <div className="rounded-xl bg-[#1E293B]/60 p-6 shadow-md">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold text-white">Pratinjau Gambar</h3>
+                <h3 className="text-lg font-bold text-white">
+                  Pratinjau Gambar
+                </h3>
                 <button
                   onClick={handleRemoveImage}
                   className="flex h-8 w-8 items-center justify-center rounded-full bg-red-500/20 text-red-400 hover:bg-red-500/40"
                 >
-                  <span className="material-symbols-outlined text-base">close</span>
+                  <span className="material-symbols-outlined text-base">
+                    close
+                  </span>
                 </button>
               </div>
 
@@ -167,69 +171,73 @@ export default function UploadPage() {
               </div>
             </div>
           )}
+
+          {/* Hasil Gambar Deteksi - Muncul di bawah pratinjau */}
+          {result && (
+            <div className="rounded-xl bg-[#1E293B]/60 p-6 shadow-md">
+              <h3 className="mb-4 text-lg font-bold text-white">
+                Gambar Hasil Deteksi
+              </h3>
+              <img
+                src={result.image}
+                alt="Detection result"
+                className="w-full rounded-lg"
+              />
+            </div>
+          )}
         </div>
 
-        {/* ==================== RIGHT COLUMN ==================== */}
+        {/* ==================== RIGHT COLUMN (Deskripsi + ChatBot) ==================== */}
         {result && (
-          <>          <div className="flex flex-col rounded-xl bg-[#1E293B]/60 p-6 shadow-md">
-            <h3 className="mb-4 text-lg font-bold text-white">
-              Hasil Analisis AI
-            </h3>
+          <div className="flex flex-col gap-6 h-full">
+            <div className="flex flex-col rounded-xl bg-[#1E293B]/60 p-6 shadow-md overflow-y-auto max-h-[121vh]">
+              <h3 className="mb-4 text-lg font-bold text-white">
+                Hasil Analisis AI
+              </h3>
 
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm text-[#92a4c8]">Tingkat Bahaya</p>
-                <p
-                  className={`mt-1 inline-flex items-center rounded-full px-3 py-1 text-base font-semibold ${
-                    result.label === "Aman"
-                      ? "bg-green-500/10 text-green-400"
-                      : result.label === "Ringan"
-                      ? "bg-yellow-500/10 text-yellow-400"
-                      : result.label === "Sedang"
-                      ? "bg-orange-500/10 text-orange-400"
-                      : result.label === "Berat"
-                      ? "bg-red-500/10 text-red-400"
-                      : "bg-red-700/10 text-red-500"
-                  }`}
-                >
-                  {result.label}
-                </p>
-              </div>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-[#92a4c8]">Tingkat Bahaya</p>
+                  <p
+                    className={`mt-1 inline-flex items-center rounded-full px-3 py-1 text-base font-semibold ${
+                      result.label === "Aman"
+                        ? "bg-green-500/10 text-green-400"
+                        : result.label === "Ringan"
+                        ? "bg-yellow-500/10 text-yellow-400"
+                        : result.label === "Sedang"
+                        ? "bg-orange-500/10 text-orange-400"
+                        : result.label === "Berat"
+                        ? "bg-red-500/10 text-red-400"
+                        : "bg-red-700/10 text-red-500"
+                    }`}
+                  >
+                    {result.label}
+                  </p>
+                </div>
 
-              <div>
-                <p className="text-sm text-[#92a4c8]">Tingkat Keyakinan</p>
-                <p className="text-xl font-bold text-white">
-                  {result.confidence}%
-                </p>
-                <div className="h-2.5 w-full rounded-full bg-[#334366] mt-2">
-                  <div
-                    className="h-2.5 rounded-full bg-primary"
-                    style={{ width: `${result.confidence}%` }}
-                  ></div>
+                <div>
+                  <p className="text-sm text-[#92a4c8]">Tingkat Keyakinan</p>
+                  <p className="text-xl font-bold text-white">
+                    {result.confidence}%
+                  </p>
+                  <div className="h-2.5 w-full rounded-full bg-[#334366] mt-2">
+                    <div
+                      className="h-2.5 rounded-full bg-primary"
+                      style={{ width: `${result.confidence}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="text-white">
+                  <p className="text-sm text-[#92a4c8]">Deskripsi AI</p>
+                  <ReactMarkdown>{result.description}</ReactMarkdown>
                 </div>
               </div>
-
-              <div className="text-white">
-                <p className="text-sm text-[#92a4c8]">Deskripsi AI</p>
-                <ReactMarkdown>{result.description}</ReactMarkdown>
-              </div>
-
-              <div className="mt-4 border-t border-[#334366] pt-4">
-                <p className="text-sm text-[#92a4c8] mb-2">
-                  Gambar Hasil Deteksi
-                </p>
-                <img
-                  src={result.image}
-                  alt="Detection result"
-                  className="w-full rounded-lg"
-                />
-              </div>
             </div>
+
+            {/* ChatBot */}
+            <ChatBot data={result.description} />
           </div>
-
-          <ChatBot data={result.description} />
-          </>
-
         )}
       </div>
     </main>

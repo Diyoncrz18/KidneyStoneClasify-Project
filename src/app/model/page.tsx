@@ -7,15 +7,15 @@ export default function ModelOverviewPage() {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <div className="flex flex-col gap-2 rounded-2xl border border-border-dark bg-surface-dark/30 p-6 shadow-md transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <p className="text-text-secondary text-sm font-medium leading-normal">Current Model</p>
-            <p className="text-text-main tracking-light text-2xl font-bold leading-tight">EfficientNet B0</p>
+            <p className="text-text-main tracking-light text-2xl font-bold leading-tight">YOLO V8</p>
           </div>
           <div className="flex flex-col gap-2 rounded-2xl border border-border-dark bg-surface-dark/30 p-6 shadow-md transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <p className="text-text-secondary text-sm font-medium leading-normal">Accuracy</p>
-            <p className="text-text-main tracking-light text-2xl font-bold leading-tight">95.4%</p>
+            <p className="text-text-main tracking-light text-2xl font-bold leading-tight">99.19%</p>
           </div>
           <div className="flex flex-col gap-2 rounded-2xl border border-border-dark bg-surface-dark/30 p-6 shadow-md transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <p className="text-text-secondary text-sm font-medium leading-normal">Last Retrain</p>
-            <p className="text-text-main tracking-light text-2xl font-bold leading-tight">2025-11-01</p>
+            <p className="text-text-main tracking-light text-2xl font-bold leading-tight">2025-11-07</p>
           </div>
         </div>
 

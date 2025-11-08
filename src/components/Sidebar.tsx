@@ -52,9 +52,9 @@ export default function Sidebar() {
               <h1 className="text-white text-base font-medium leading-normal">
                 Artificial Intelligence
               </h1>
-              <p className="text-[#92a4c8] text-sm font-normal leading-normal">
-                Nephrologist
-              </p>
+                {/* <p className="text-[#92a4c8] text-sm font-normal leading-normal">
+                  Nephrologist
+                </p> */}
             </div>
           </div>
           <div className="flex flex-col gap-2 mt-4">
