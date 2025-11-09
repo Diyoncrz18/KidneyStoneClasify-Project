@@ -99,7 +99,7 @@ export default function UploadPage() {
             Upload Gambar
           </p>
           <p className="text-base font-normal leading-normal text-[#92a4c8]">
-            Unggah hasil scan ginjal Anda untuk analisis AI.
+            Unggah hasil scan KidneyStone Anda untuk analisis AI.
           </p>
         </div>
       </div>
@@ -156,6 +156,18 @@ export default function UploadPage() {
                   src={previewUrl}
                   onLoad={() => URL.revokeObjectURL(previewUrl)}
                 />
+
+                {/* ✅ Loading overlay saat klasifikasi */}
+                {isClassifying && (
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                      <p className="text-white font-medium">
+                        Menganalisis gambar...
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="mt-6 flex w-full">
@@ -173,7 +185,7 @@ export default function UploadPage() {
           )}
 
           {/* Hasil Gambar Deteksi - Muncul di bawah pratinjau */}
-          {result && (
+          {result && !isClassifying && (
             <div className="rounded-xl bg-[#1E293B]/60 p-6 shadow-md">
               <h3 className="mb-4 text-lg font-bold text-white">
                 Gambar Hasil Deteksi
@@ -188,7 +200,7 @@ export default function UploadPage() {
         </div>
 
         {/* ==================== RIGHT COLUMN (Deskripsi + ChatBot) ==================== */}
-        {result && (
+        {result && !isClassifying && (
           <div className="flex flex-col gap-6 h-full">
             <div className="flex flex-col rounded-xl bg-[#1E293B]/60 p-6 shadow-md overflow-y-auto max-h-[121vh]">
               <h3 className="mb-4 text-lg font-bold text-white">
