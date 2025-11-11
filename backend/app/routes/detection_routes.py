@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, render_template, current_app
 import os
-from app.services.yolo_service import detect_image
+from app.services.yolo_service import detect_image, generate_gradcam
 from app.services.gemini_service import describe_detected_image, chatbot_msg
 # Paths to scripts (must match sudoers)
 
@@ -28,11 +28,21 @@ def detect():
     try:
         result_img_path, confidence = detect_image(img_path, upload_folder)
         description = describe_detected_image(result_img_path)
-        return jsonify({
+        
+        # Generate Grad-CAM visualization
+        gradcam_path = generate_gradcam(img_path, upload_folder)
+        gradcam_image = os.path.basename(gradcam_path) if gradcam_path else None
+        
+        response_data = {
             "result_image": os.path.basename(result_img_path),
             "description": description,
             "confidence": confidence
-        })
+        }
+        
+        if gradcam_image:
+            response_data["gradcam_image"] = gradcam_image
+        
+        return jsonify(response_data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

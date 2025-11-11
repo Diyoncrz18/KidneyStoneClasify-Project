@@ -10,6 +10,7 @@ interface DetectionResult {
   confidence: number;
   description: string;
   image: string;
+  gradcamImage?: string;
 }
 
 export default function UploadPage() {
@@ -74,6 +75,9 @@ export default function UploadPage() {
         label,
         description: data.description,
         image: `${process.env.NEXT_PUBLIC_BASEURL_BE}/static/uploads/${data.result_image}`,
+        gradcamImage: data.gradcam_image 
+          ? `${process.env.NEXT_PUBLIC_BASEURL_BE}/static/uploads/${data.gradcam_image}`
+          : undefined,
       });
     } catch (err) {
       alert((err as Error).message);
@@ -186,15 +190,34 @@ export default function UploadPage() {
 
           {/* Hasil Gambar Deteksi - Muncul di bawah pratinjau */}
           {result && !isClassifying && (
-            <div className="rounded-xl bg-[#1E293B]/60 p-6 shadow-md">
-              <h3 className="mb-4 text-lg font-bold text-white">
-                Gambar Hasil Deteksi
-              </h3>
-              <img
-                src={result.image}
-                alt="Detection result"
-                className="w-full rounded-lg"
-              />
+            <div className="flex flex-col gap-6">
+              <div className="rounded-xl bg-[#1E293B]/60 p-6 shadow-md">
+                <h3 className="mb-4 text-lg font-bold text-white">
+                  Gambar Hasil Deteksi
+                </h3>
+                <img
+                  src={result.image}
+                  alt="Detection result"
+                  className="w-full rounded-lg"
+                />
+              </div>
+              
+              {/* Grad-CAM Visualization */}
+              {result.gradcamImage && (
+                <div className="rounded-xl bg-[#1E293B]/60 p-6 shadow-md">
+                  <h3 className="mb-4 text-lg font-bold text-white">
+                    Grad-CAM Visualization
+                  </h3>
+                  <p className="mb-3 text-sm text-[#92a4c8]">
+                    Area yang diwarnai menunjukkan bagian penting yang dipelajari model untuk deteksi batu ginjal.
+                  </p>
+                  <img
+                    src={result.gradcamImage}
+                    alt="Grad-CAM visualization"
+                    className="w-full rounded-lg"
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>
