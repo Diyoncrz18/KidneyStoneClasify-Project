@@ -27,13 +27,12 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASEURL_BE;
 export default function PatientDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }> | { id: string };
+  params: { id: string }
 }) {
   const router = useRouter();
   // Unwrap params if it's a Promise (Next.js 15+)
-  const resolvedParams = typeof params.then === 'function' ? use(params) : params;
   // Decode patient ID in case it was URL encoded
-  const patientId = resolvedParams.id ? decodeURIComponent(resolvedParams.id) : resolvedParams.id;
+  const patientId = decodeURIComponent(params.id)
   
   const [patient, setPatient] = useState<PatientDetail | null>(null);
   const [scans, setScans] = useState<ScanItem[]>([]);
