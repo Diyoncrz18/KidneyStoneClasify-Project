@@ -21,14 +21,14 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASEURL_BE;
 export default function ScanDetailPage({
   params,
 }: {
-  params: { id: string; scanId: string }
+  params: Promise<{ id: string; scanId: string }>
 }) {
   const router = useRouter();
   
-
+  const resolveParams = use(params)
+  const patientId = resolveParams.id;
   // Decode IDs in case they were URL encoded
-  const patientId = decodeURIComponent(params.id)
-  const scanId = decodeURIComponent(params.scanId)
+  const scanId = resolveParams.scanId
   
   const [scan, setScan] = useState<ScanDetail | null>(null);
   const [loading, setLoading] = useState(true);
