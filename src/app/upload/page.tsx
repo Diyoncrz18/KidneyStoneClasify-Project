@@ -48,6 +48,7 @@ export default function UploadPage() {
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [notificationType, setNotificationType] = useState<"success" | "error">("success");
+  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
 
   const [newPatientName, setNewPatientName] = useState("");
   const [newPatientAge, setNewPatientAge] = useState("");
@@ -255,20 +256,57 @@ export default function UploadPage() {
         originalDataUri: originalDataUri ? "present (" + originalDataUri.length + " chars)" : "missing",
       });
 
-      // Ensure description is always present
-      const description = data.description || 
-        "Deskripsi tidak tersedia. Analisis visual menunjukkan deteksi batu ginjal menggunakan model YOLO.";
+      // Initial description from backend (might be empty or blocked)
+      // Create a basic fallback description immediately based on detection results
+      const detectionCount = data.detections?.length || 
+                           data.detection_count || 
+                           data.count || 
+                           (confidence > 0 ? 1 : 0);
       
-      console.log("[DEBUG] Description from backend:", {
+      const initialFallbackDescription = `## Ringkasan Hasil Analisis
+
+**${detectionCount === 0 ? 'Tidak terdeteksi batu ginjal' : detectionCount === 1 ? 'Terdeteksi 1 batu ginjal' : `Terdeteksi ${detectionCount} batu ginjal`}** dalam CT Scan yang dianalisis.
+
+### Tingkat Keparahan
+${label === 'Aman' ? 'Hasil analisis menunjukkan kondisi yang relatif aman dengan tingkat kepercayaan rendah.' : 
+  label === 'Ringan' ? 'Hasil analisis menunjukkan indikasi ringan dengan beberapa tanda yang perlu diperhatikan.' :
+  label === 'Sedang' ? 'Hasil analisis menunjukkan indikasi sedang yang memerlukan perhatian medis lebih lanjut.' :
+  label === 'Berat' ? 'Hasil analisis menunjukkan indikasi berat yang memerlukan evaluasi medis segera.' :
+  label === 'Sangat Serius' ? 'Hasil analisis menunjukkan indikasi sangat serius yang memerlukan perhatian medis segera.' :
+  'Hasil analisis menunjukkan deteksi batu ginjal.'} Tingkat kepercayaan deteksi: **${confidence}%**.
+
+### Rekomendasi
+Disarankan untuk berkonsultasi dengan dokter spesialis urologi untuk evaluasi lebih lanjut dan penanganan yang sesuai. Hasil ini merupakan bantuan diagnosis dan tidak menggantikan konsultasi medis profesional.`;
+
+      // Always ensure description exists - use backend description or fallback
+      let description = data.description;
+      
+      // If description is missing, empty, or contains error messages, use fallback
+      if (!description || !description.trim() || 
+          description.includes("tidak tersedia") || 
+          description.includes("Gagal menghasilkan") ||
+          description.includes("diblokir") ||
+          description.trim().length < 50) {
+        console.log("[DEBUG] Backend description invalid, using fallback:", {
+          description: description ? description.substring(0, 100) : "missing",
+          length: description ? description.length : 0
+        });
+        description = initialFallbackDescription;
+      }
+      
+      console.log("[DEBUG] Final description to use:", {
         description: description ? description.substring(0, 100) + "..." : "missing",
         descriptionLength: description ? description.length : 0,
         hasDescription: !!description,
+        detectionCount: detectionCount,
+        confidence: confidence,
+        label: label
       });
 
       const resultData = {
         confidence,
         label,
-        description: description,  // Always ensure description is present
+        description: description,  // Initial description
         image: finalAnnotatedImageUrl,  // Use Cloudinary URL or data_uri fallback
         gradcamImage: gradcamImageUrl,
         prediction: data.prediction ?? null,
@@ -292,6 +330,118 @@ export default function UploadPage() {
         setIsClassifying(false);
         setProgress(0);
       }, 300);
+
+      // Generate AI description using Gemini after detection completes
+      // Always generate description to ensure we have detailed analysis with stone count
+      // This will override any existing description with a more detailed one
+      (async () => {
+        setIsGeneratingDescription(true);
+        try {
+          // Extract detection count from various possible fields
+          const detectionCount = data.detections?.length || 
+                                 data.detection_count || 
+                                 data.count || 
+                                 (confidence > 0 ? 1 : 0); // If confidence > 0, assume at least 1 detection
+
+          const descResponse = await fetch('/api/generate-description', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              imageUrl: finalAnnotatedImageUrl || finalOriginalImageUrl,
+              detectionData: {
+                detections: data.detections || [],
+                count: detectionCount,
+                confidence: confidence,
+                label: label,
+                prediction: data.prediction,
+              },
+              confidence: confidence,
+              label: label,
+            }),
+          });
+
+          // Always try to get description, even if response is not ok
+          // API will always return a description (either from Gemini or fallback)
+          let descriptionToUse = '';
+          
+          if (descResponse.ok) {
+            const descData = await descResponse.json();
+            if (descData.description && descData.description.trim()) {
+              descriptionToUse = descData.description;
+            }
+          } else {
+            // If response is not ok, try to parse error response which might contain fallback
+            try {
+              const errorData = await descResponse.json();
+              if (errorData.description && errorData.description.trim()) {
+                descriptionToUse = errorData.description;
+              }
+            } catch (parseError) {
+              console.error('Error parsing error response:', parseError);
+            }
+          }
+          
+          // If we still don't have a description, generate a fallback
+          if (!descriptionToUse || descriptionToUse.trim() === '') {
+            const detectionCount = data.detections?.length || 
+                                 data.detection_count || 
+                                 data.count || 
+                                 (confidence > 0 ? 1 : 0);
+            
+            descriptionToUse = `## Ringkasan Hasil Analisis
+
+**${detectionCount === 0 ? 'Tidak terdeteksi batu ginjal' : detectionCount === 1 ? 'Terdeteksi 1 batu ginjal' : `Terdeteksi ${detectionCount} batu ginjal`}** dalam CT Scan yang dianalisis.
+
+### Tingkat Keparahan
+${label === 'Aman' ? 'Hasil analisis menunjukkan kondisi yang relatif aman dengan tingkat kepercayaan rendah.' : 
+  label === 'Ringan' ? 'Hasil analisis menunjukkan indikasi ringan dengan beberapa tanda yang perlu diperhatikan.' :
+  label === 'Sedang' ? 'Hasil analisis menunjukkan indikasi sedang yang memerlukan perhatian medis lebih lanjut.' :
+  label === 'Berat' ? 'Hasil analisis menunjukkan indikasi berat yang memerlukan evaluasi medis segera.' :
+  label === 'Sangat Serius' ? 'Hasil analisis menunjukkan indikasi sangat serius yang memerlukan perhatian medis segera.' :
+  'Hasil analisis menunjukkan deteksi batu ginjal.'} Tingkat kepercayaan deteksi: **${confidence}%**.
+
+### Rekomendasi
+Disarankan untuk berkonsultasi dengan dokter spesialis urologi untuk evaluasi lebih lanjut dan penanganan yang sesuai. Hasil ini merupakan bantuan diagnosis dan tidak menggantikan konsultasi medis profesional.`;
+          }
+          
+          // Always update result with description (either from API or fallback)
+          setResult(prev => prev ? {
+            ...prev,
+            description: descriptionToUse
+          } : null);
+        } catch (descError) {
+          console.error('Error generating description:', descError);
+          // Generate fallback description on error
+          const detectionCount = data.detections?.length || 
+                               data.detection_count || 
+                               data.count || 
+                               (confidence > 0 ? 1 : 0);
+          
+          const fallbackDescription = `## Ringkasan Hasil Analisis
+
+**${detectionCount === 0 ? 'Tidak terdeteksi batu ginjal' : detectionCount === 1 ? 'Terdeteksi 1 batu ginjal' : `Terdeteksi ${detectionCount} batu ginjal`}** dalam CT Scan yang dianalisis.
+
+### Tingkat Keparahan
+${label === 'Aman' ? 'Hasil analisis menunjukkan kondisi yang relatif aman dengan tingkat kepercayaan rendah.' : 
+  label === 'Ringan' ? 'Hasil analisis menunjukkan indikasi ringan dengan beberapa tanda yang perlu diperhatikan.' :
+  label === 'Sedang' ? 'Hasil analisis menunjukkan indikasi sedang yang memerlukan perhatian medis lebih lanjut.' :
+  label === 'Berat' ? 'Hasil analisis menunjukkan indikasi berat yang memerlukan evaluasi medis segera.' :
+  label === 'Sangat Serius' ? 'Hasil analisis menunjukkan indikasi sangat serius yang memerlukan perhatian medis segera.' :
+  'Hasil analisis menunjukkan deteksi batu ginjal.'} Tingkat kepercayaan deteksi: **${confidence}%**.
+
+### Rekomendasi
+Disarankan untuk berkonsultasi dengan dokter spesialis urologi untuk evaluasi lebih lanjut dan penanganan yang sesuai. Hasil ini merupakan bantuan diagnosis dan tidak menggantikan konsultasi medis profesional.`;
+          
+          setResult(prev => prev ? {
+            ...prev,
+            description: fallbackDescription
+          } : null);
+        } finally {
+          setIsGeneratingDescription(false);
+        }
+      })();
     } catch (err) {
       setIsClassifying(false);
       setProgress(0);
@@ -937,7 +1087,7 @@ export default function UploadPage() {
         {/* ==================== RIGHT COLUMN (Deskripsi + ChatBot) ==================== */}
         {result && !isClassifying && (
           <div className="flex flex-col gap-6 h-full">
-            <div className="flex flex-col rounded-xl bg-white dark:bg-slate-800 shadow-md p-6  max-h-[121vh]">
+            <div className="flex flex-col rounded-xl bg-white dark:bg-slate-800 shadow-md p-6  max-h-[440vh]">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-2 rounded-lg bg-primary/10 text-primary">
                   <span className="material-symbols-outlined text-xl">analytics</span>
@@ -1064,12 +1214,19 @@ export default function UploadPage() {
                     </p>
                   </div>
                   <div className="mt-2 rounded-lg bg-white dark:bg-[#020617]/40 p-4 text-sm leading-relaxed text-text-light dark:text-text-dark border border-gray-200 dark:border-[#1e293b]">
-                    {result.description && result.description.trim() ? (
+                    {isGeneratingDescription ? (
+                      <div className="flex items-center gap-2 text-text-muted-light dark:text-text-muted-dark">
+                        <span className="material-symbols-outlined animate-spin text-primary">sync</span>
+                        <p className="italic">Sedang menghasilkan deskripsi AI menggunakan Gemini...</p>
+                      </div>
+                    ) : result.description && result.description.trim() ? (
                       <ReactMarkdown>{result.description}</ReactMarkdown>
                     ) : (
-                      <p className="text-text-muted-light dark:text-text-muted-dark italic">
-                        Deskripsi tidak tersedia. Analisis visual menunjukkan deteksi batu ginjal menggunakan model YOLO.
-                      </p>
+                      <div className="text-text-muted-light dark:text-text-muted-dark">
+                        <p className="italic mb-2">Deskripsi tidak tersedia.</p>
+                        <p className="text-xs">Silakan coba refresh halaman atau hubungi administrator jika masalah berlanjut.</p>
+                        <p className="text-xs mt-2">Debug info: {result ? `Has result object` : `No result object`}, Description: {result?.description ? `Length: ${result.description.length}` : `Missing`}</p>
+                      </div>
                     )}
                   </div>
                 </div>
