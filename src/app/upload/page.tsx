@@ -937,7 +937,7 @@ export default function UploadPage() {
         {/* ==================== RIGHT COLUMN (Deskripsi + ChatBot) ==================== */}
         {result && !isClassifying && (
           <div className="flex flex-col gap-6 h-full">
-            <div className="flex flex-col rounded-xl bg-white dark:bg-slate-800 shadow-md p-6 overflow-y-auto max-h-[121vh]">
+            <div className="flex flex-col rounded-xl bg-white dark:bg-slate-800 shadow-md p-6  max-h-[121vh]">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-2 rounded-lg bg-primary/10 text-primary">
                   <span className="material-symbols-outlined text-xl">analytics</span>
