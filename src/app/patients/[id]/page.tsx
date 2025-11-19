@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
@@ -24,16 +24,13 @@ interface PatientDetail {
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASEURL_BE;
 
-export default function PatientDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }> | { id: string };
-}) {
+export default function PatientDetailPage({params}:{params:Promise<{id:string}>}) {
   const router = useRouter();
   // Unwrap params if it's a Promise (Next.js 15+)
-  const resolvedParams = typeof params.then === 'function' ? use(params) : params;
   // Decode patient ID in case it was URL encoded
-  const patientId = resolvedParams.id ? decodeURIComponent(resolvedParams.id) : resolvedParams.id;
+  const resolveParams = use(params)
+  const patientId = resolveParams.id;
+  console.log(patientId);
   
   const [patient, setPatient] = useState<PatientDetail | null>(null);
   const [scans, setScans] = useState<ScanItem[]>([]);

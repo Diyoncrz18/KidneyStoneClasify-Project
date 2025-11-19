@@ -21,15 +21,14 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASEURL_BE;
 export default function ScanDetailPage({
   params,
 }: {
-  params: Promise<{ id: string; scanId: string }> | { id: string; scanId: string };
+  params: Promise<{ id: string; scanId: string }>
 }) {
   const router = useRouter();
   
-  // Unwrap params if it's a Promise (Next.js 15+)
-  const resolvedParams = typeof params.then === 'function' ? use(params) : params;
+  const resolveParams = use(params)
+  const patientId = resolveParams.id;
   // Decode IDs in case they were URL encoded
-  const patientId = resolvedParams.id ? decodeURIComponent(resolvedParams.id) : resolvedParams.id;
-  const scanId = resolvedParams.scanId ? decodeURIComponent(resolvedParams.scanId) : resolvedParams.scanId;
+  const scanId = resolveParams.scanId
   
   const [scan, setScan] = useState<ScanDetail | null>(null);
   const [loading, setLoading] = useState(true);
