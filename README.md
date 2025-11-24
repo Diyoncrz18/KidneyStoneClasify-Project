@@ -2,11 +2,14 @@
 
 Sistem deteksi batu ginjal menggunakan YOLOv8 dan Gemini AI untuk analisis CT Scan.
 
+## Backend Repository
+Backend Flask tersedia di repo terpisah:
+https://github.com/grenly-del/project_AI 
 ## Tech Stack
 
 - **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS, Chart.js
 - **Backend**: Flask, Python, MongoDB, YOLOv8, Google Gemini AI
-- **Cloud Storage**: Cloudinary (optional, dengan base64 fallback)
+- **Cloud Storage**: Cloudinary (dengan base64 fallback)
 
 ## Getting Started
 
@@ -19,17 +22,23 @@ Sistem deteksi batu ginjal menggunakan YOLOv8 dan Gemini AI untuk analisis CT Sc
 
 ### Frontend Setup
 
-1. Install dependencies:
+
+1. Clone Frontend:
+```bash
+git clone https://github.com/Diyoncrz18/KidneyStoneClasify-Project.git
+```
+2. Install dependencies:
 ```bash
 npm install
 ```
 
-2. Create `.env.local` file:
+3. Create `.env.local` file:
 ```env
-NEXT_PUBLIC_BASEURL_BE=http://localhost:5000
+NEXT_PUBLIC_BASEURL_BE=http://127.0.0.1:5000
+BASEURL_BE=http://127.0.0.1:5000
 ```
 
-3. Run development server:
+4. Run development server:
 ```bash
 npm run dev
 ```
@@ -37,44 +46,51 @@ npm run dev
 Frontend akan berjalan di [http://localhost:3000](http://localhost:3000)
 
 ### Backend Setup
+1. Clone Backend:
+```bash
+git clone https://github.com/grenly-del/project_AI.git
+```
 
-1. Navigate to backend directory:
+2. Navigate to backend directory:
 ```bash
 cd backend
 ```
 
-2. Create virtual environment (recommended):
+3. Create virtual environment (recommended):
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-3. Install dependencies:
+4. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Copy environment example:
+5. Copy environment example:
 ```bash
 cp env.example .env
 ```
 
-5. Edit `.env` file and fill in:
+6. Edit `.env` file and fill in:
 ```env
-GEMINI_KEY=your_gemini_api_key_here
-MONGO_URI=mongodb://localhost:27017
+FLASK_ENV=development
+FLASK_APP=app.py
+SECRET_KEY=supersecretkey
+GEMINI_KEY=<masukkan key>
+
+MONGO_URI=mongodb://127.0.0.1:27017
 MONGO_DB_NAME=kidneystone_db
-CLOUDINARY_CLOUD_NAME=your_cloud_name  # Optional
-CLOUDINARY_API_KEY=your_api_key        # Optional
-CLOUDINARY_API_SECRET=your_api_secret  # Optional
-CORS_ORIGINS=http://localhost:3000
-DEBUG=True
-SECRET_KEY=your-secret-key-here
+
+CLOUDINARY_CLOUD_NAME=dedu45dov
+CLOUDINARY_API_KEY=173836476677588
+CLOUDINARY_API_SECRET=HLfZoX-0ogbTsTYFyEEw-scehcw
+
 ```
 
-6. Place YOLOv8 model file at `backend/app/model/best.pt`
+7. Place YOLOv8 model file at `backend/app/model/best.pt`
 
-7. Run backend:
+8. Run backend:
 ```bash
 python wsgi.py
 ```
