@@ -5,6 +5,13 @@ Sistem deteksi batu ginjal menggunakan YOLOv8 dan Gemini AI untuk analisis CT Sc
 ## Backend Repository
 Backend Flask tersedia di repo terpisah:
 https://github.com/grenly-del/project_AI 
+
+Silahkan kunjungi websitenya dan coba, dengan akun 
+
+**email** : *snakeeys070@gmail.com*  
+**password** : *gran123*
+
+Power Point Presentasi : https://www.canva.com/design/DAG423VWT4w/tpGJkVsgP76NZsDCuhOtjQ/edit?utm_content=DAG423VWT4w&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton 
 ## Tech Stack
 
 - **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS, Chart.js
