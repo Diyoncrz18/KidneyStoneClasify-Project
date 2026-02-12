@@ -16,10 +16,11 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     if (typeof window === "undefined") return;
 
     const isAuthPage = pathname.startsWith("/auth");
+    const isPublicPage = pathname.startsWith("/landing") || pathname === "/";
     const storedUser = window.localStorage.getItem("kidney_user");
 
-    if (!storedUser && !isAuthPage) {
-      router.replace("/auth/login");
+    if (!storedUser && !isAuthPage && !isPublicPage) {
+      router.replace("/landing");
       setChecking(false);
       return;
     }

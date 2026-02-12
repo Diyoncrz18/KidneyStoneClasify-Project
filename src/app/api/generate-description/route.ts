@@ -68,47 +68,50 @@ export async function POST(request: NextRequest) {
     severityLabel = label || 'Tidak diketahui';
 
     // Prepare detailed prompt for Gemini
-    const prompt = `Anda adalah ahli radiologi berpengalaman yang menganalisis hasil CT Scan untuk deteksi batu ginjal.
+    const stoneDetected = stoneCount > 0;
+    const prompt = `Anda adalah dokter spesialis urologi berpengalaman yang menganalisis hasil CT Scan ginjal.
 
-**Data Hasil Analisis:**
-- Jumlah batu ginjal terdeteksi: ${stoneCount} ${stoneCount === 1 ? 'batu' : 'batu-batu'}
-- Tingkat kepercayaan deteksi: ${confidenceScore}%
+**DATA DETEKSI DARI MODEL AI (YOLOv8):**
+- Hasil Prediksi: ${stoneDetected ? 'Batu Ginjal Terdeteksi' : 'Tidak Ada Batu Ginjal Terdeteksi'}
+- Jumlah area deteksi (bounding box): ${stoneCount}
+- Tingkat kepercayaan model: ${confidenceScore}%
 - Kategori tingkat keparahan: ${severityLabel}
-- Metode deteksi: Model YOLOv8 (You Only Look Once) untuk deteksi objek
 
-**Tugas Anda:**
-Buatkan deskripsi analisis medis yang komprehensif dan profesional dalam bahasa Indonesia dengan struktur berikut:
+**INSTRUKSI:**
+Berikan deskripsi analisis medis yang komprehensif dan profesional dalam bahasa Indonesia.
+PENTING: Deskripsi HARUS konsisten dengan data deteksi di atas. Jangan membuat informasi yang bertentangan.
 
-1. **Ringkasan Hasil Analisis**
-   - Berikan ringkasan singkat tentang hasil deteksi batu ginjal
-   - Sebutkan jumlah batu ginjal yang terdeteksi dengan jelas
+${stoneDetected ? `Karena model mendeteksi ${stoneCount} area batu ginjal dengan confidence ${confidenceScore}%, berikan analisis yang mencakup:` : 'Karena model TIDAK mendeteksi batu ginjal, jelaskan bahwa hasil pemeriksaan normal.'}
 
-2. **Analisis Detail**
-   - Jelaskan interpretasi dari jumlah batu ginjal yang terdeteksi
-   - Analisis tingkat kepercayaan deteksi (${confidenceScore}%)
-   - Penjelasan kategori ${severityLabel} dan implikasinya
+**FORMAT OUTPUT (gunakan Markdown):**
 
-3. **Tingkat Keparahan**
-   - Berdasarkan kategori ${severityLabel} dan confidence score ${confidenceScore}%
-   - Jelaskan apa artinya dalam konteks medis
+## Ringkasan Hasil Analisis
+- ${stoneDetected ? `Jelaskan bahwa terdeteksi ${stoneCount} area batu ginjal` : 'Jelaskan bahwa tidak terdeteksi batu ginjal'}
+- Sebutkan tingkat kepercayaan deteksi: ${confidenceScore}%
 
-4. **Rekomendasi Medis**
-   - Berikan rekomendasi tindakan lanjutan yang sesuai
-   - Saran untuk konsultasi dengan dokter spesialis jika diperlukan
-   - Catatan penting tentang interpretasi hasil
+## Analisis Detail
+- ${stoneDetected ? 'Interpretasi jumlah dan area deteksi batu ginjal' : 'Menjelaskan kondisi ginjal tampak normal'}
+- Analisis tingkat kepercayaan ${confidenceScore}% dan kategori ${severityLabel}
+- ${stoneDetected ? 'Perkiraan dampak klinis dari temuan' : 'Pencegahan batu ginjal'}
 
-**Panduan Penulisan:**
-- Gunakan bahasa Indonesia yang jelas dan mudah dipahami
-- Tetap profesional dan sesuai dengan konteks medis
-- Hindari diagnosis definitif, gunakan istilah "indikasi" atau "menunjukkan"
-- Fokus pada informasi yang bermanfaat untuk pasien dan tenaga medis
-- Jika tidak ada batu yang terdeteksi (${stoneCount === 0 ? 'ya' : 'tidak'}), jelaskan dengan jelas
+## Tingkat Keparahan: ${severityLabel}
+- Penjelasan medis tentang kategori ${severityLabel}
+- Apa artinya bagi pasien
 
-Buat deskripsi yang informatif, akurat, dan membantu dalam proses diagnosis lebih lanjut.`;
+## Rekomendasi Medis
+- Tindakan lanjutan sesuai tingkat keparahan
+- ${stoneDetected ? 'Rujukan ke spesialis jika diperlukan' : 'Pemeriksaan rutin berkala'}
+- Catatan bahwa hasil ini adalah bantuan diagnosis, bukan pengganti konsultasi medis
+
+**PANDUAN:**
+- Gunakan bahasa Indonesia yang jelas dan profesional
+- Gunakan istilah "indikasi" atau "menunjukkan", bukan diagnosis pasti
+- Jangan melebihi data deteksi yang diberikan
+- Jika ${stoneCount} batu terdeteksi, jangan katakan jumlah berbeda`;
 
     // Call Gemini API
-    // Using Google Generative AI REST API
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`;
+    // Using Google Generative AI REST API (gemini-2.0-flash for better accuracy)
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`;
     
     console.log('[Generate Description] Calling Gemini API...');
     

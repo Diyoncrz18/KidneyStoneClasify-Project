@@ -94,7 +94,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!chartRef.current) return;
-    
+
     // Destroy existing chart if any
     if (chartInstanceRef.current) {
       chartInstanceRef.current.destroy();
@@ -172,8 +172,8 @@ export default function DashboardPage() {
           },
         },
         plugins: {
-          legend: { 
-            display: false 
+          legend: {
+            display: false
           },
           tooltip: {
             backgroundColor: "rgba(0, 0, 0, 0.8)",
@@ -230,13 +230,12 @@ export default function DashboardPage() {
         />
         <Card
           title="Avg Confidence"
-          value={`${
-            analytics.accuracyOverTime.length
-              ? analytics.accuracyOverTime[
-                  analytics.accuracyOverTime.length - 1
-                ].averageConfidence.toFixed(2)
-              : 0
-          }%`}
+          value={`${analytics.accuracyOverTime.length
+            ? analytics.accuracyOverTime[
+              analytics.accuracyOverTime.length - 1
+            ].averageConfidence.toFixed(2)
+            : 0
+            }%`}
           icon="verified"
           accent="bg-yellow-500/10 text-yellow-500"
         />

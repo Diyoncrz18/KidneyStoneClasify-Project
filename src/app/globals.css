@@ -2,6 +2,82 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===== Landing Page Styles ===== */
+.gradient-text {
+  background: linear-gradient(135deg, #0ea5e9, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-stat {
+  background: linear-gradient(135deg, #0ea5e9, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.scan-crosshair::before,
+.scan-crosshair::after {
+  content: '';
+  position: absolute;
+  background: rgba(14, 165, 233, 0.3);
+}
+.scan-crosshair::before {
+  width: 1px;
+  height: 100%;
+  left: 50%;
+  top: 0;
+}
+.scan-crosshair::after {
+  height: 1px;
+  width: 100%;
+  top: 50%;
+  left: 0;
+}
+
+.grid-overlay {
+  background-image:
+    linear-gradient(rgba(14, 165, 233, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14, 165, 233, 0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.faq-item.active .faq-answer {
+  max-height: 300px;
+}
+.faq-item.active .faq-chevron {
+  transform: rotate(180deg);
+}
+
+.steps-line::before {
+  content: '';
+  position: absolute;
+  top: 44px;
+  left: 12%;
+  right: 12%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #e2e8f0, #0ea5e9, #e2e8f0, transparent);
+}
+@media (max-width: 1024px) {
+  .steps-line::before { display: none; }
+}
+
 @keyframes slideUp {
   from {
     transform: translateY(100%);
